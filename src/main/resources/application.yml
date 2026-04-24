@@ -1,0 +1,40 @@
+spring:
+  application:
+    name: email-auto
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/email_auto}
+    username: ${DATABASE_USERNAME:postgres}
+    password: ${DATABASE_PASSWORD:postgres}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    open-in-view: false
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+  session:
+    cookie:
+      http-only: true
+      same-site: lax
+      secure: ${SESSION_COOKIE_SECURE:false}
+server:
+  port: ${PORT:8080}
+  forward-headers-strategy: framework
+app:
+  base-url: ${APP_BASE_URL:http://localhost:8080}
+  token-encryption-key: ${TOKEN_ENCRYPTION_KEY:change-me-change-me-change-me-32}
+  oauth:
+    google:
+      client-id: ${GOOGLE_CLIENT_ID:}
+      client-secret: ${GOOGLE_CLIENT_SECRET:}
+      redirect-uri: ${GOOGLE_REDIRECT_URI:${app.base-url}/auth/google/callback}
+  mail:
+    default-delay-ms: ${DEFAULT_EMAIL_DELAY_MS:1500}
+  cloudinary:
+    cloud-name: ${CLOUDINARY_CLOUD_NAME:}
+    api-key: ${CLOUDINARY_API_KEY:}
+    api-secret: ${CLOUDINARY_API_SECRET:}
+    folder: ${CLOUDINARY_FOLDER:email-auto/excel}
+    allowed-download-host: ${CLOUDINARY_ALLOWED_DOWNLOAD_HOST:res.cloudinary.com}

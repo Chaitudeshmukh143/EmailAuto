@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>EmailAuto</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<main class="shell">
+    <section class="topbar">
+        <div>
+            <h1>EmailAuto</h1>
+            <p>Send personalized Gmail campaigns from your own Google account.</p>
+        </div>
+        <div id="authBox" class="auth-box"></div>
+    </section>
+
+    <section id="loginPanel" class="panel">
+        <h2>Connect Gmail</h2>
+        <p>Authorize Gmail send access to upload recipients and send messages through the Gmail API.</p>
+        <a class="google-button" href="/auth/google">Login with Google</a>
+    </section>
+
+    <section id="dashboardPanel" class="grid hidden">
+        <div class="panel composer">
+            <h2>New Bulk Send</h2>
+            <form id="emailForm">
+                <label>Excel file
+                    <input type="file" name="file" accept=".xlsx" required>
+                </label>
+                <label>Subject
+                    <input type="text" name="subject" placeholder="Hello {{name}}" required>
+                </label>
+                <label>HTML template
+                    <textarea name="template" rows="12" placeholder="<p>Hi {{name}},</p><p>We loved what {{company}} is building.</p>" required></textarea>
+                </label>
+                <label>Delay between emails (milliseconds)
+                    <input type="number" name="delayMs" min="0" step="500" value="1500">
+                </label>
+                <button type="submit">Send emails</button>
+                <p id="formStatus" class="status"></p>
+            </form>
+        </div>
+
+        <aside class="panel stats">
+            <h2>Dashboard</h2>
+            <div class="stat-row"><span>Sent</span><strong id="sentCount">0</strong></div>
+            <div class="stat-row"><span>Failed</span><strong id="failedCount">0</strong></div>
+            <h3>Recent Campaigns</h3>
+            <div id="campaigns" class="list"></div>
+            <h3>Recent Failures</h3>
+            <div id="failures" class="list"></div>
+        </aside>
+    </section>
+</main>
+<script src="/app.js"></script>
+</body>
+</html>
