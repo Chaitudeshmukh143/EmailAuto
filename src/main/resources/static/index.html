@@ -7,50 +7,112 @@
     <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
-<main class="shell">
-    <section class="topbar">
+<main class="app-shell">
+    <section class="hero">
         <div>
             <h1>EmailAuto</h1>
-            <p>Send personalized Gmail campaigns from your own Google account.</p>
+            <p>Send personalized Gmail campaigns with a familiar compose flow.</p>
         </div>
         <div id="authBox" class="auth-box"></div>
     </section>
 
-    <section id="loginPanel" class="panel">
-        <h2>Connect Gmail</h2>
-        <p>Authorize Gmail send access to upload recipients and send messages through the Gmail API.</p>
-        <a class="google-button" href="/auth/google">Login with Google</a>
+    <section id="loginPanel" class="login-panel">
+        <div class="login-copy">
+            <h2>Connect Gmail</h2>
+            <p>Authorize your Google account once, then upload recipients, write a simple message, add attachments, and send.</p>
+            <a class="primary-button" href="/auth/google">Login with Google</a>
+        </div>
     </section>
 
-    <section id="dashboardPanel" class="grid hidden">
-        <div class="panel composer">
-            <h2>New Bulk Send</h2>
-            <form id="emailForm">
-                <label>Excel file
+    <section id="dashboardPanel" class="workspace hidden">
+        <section class="compose-window">
+            <div class="compose-header">
+                <strong>New Message</strong>
+                <span id="sheetSummary" class="compose-meta">Upload a recipient sheet to unlock field suggestions.</span>
+            </div>
+
+            <form id="emailForm" class="compose-form">
+                <div class="recipient-row">
+                    <span class="field-label">Sheet</span>
                     <input type="file" name="file" accept=".xlsx" required>
-                </label>
-                <label>Subject
+                </div>
+
+                <div class="recipient-row">
+                    <span class="field-label">To</span>
+                    <div class="row-help">
+                        <span>Each row in your Excel file becomes one personalized recipient.</span>
+                    </div>
+                </div>
+
+                <div class="recipient-row">
+                    <span class="field-label">Cc</span>
+                    <input type="text" name="cc" placeholder="manager@company.com, team@company.com">
+                </div>
+
+                <div class="recipient-row">
+                    <span class="field-label">Bcc</span>
+                    <input type="text" name="bcc" placeholder="audit@company.com, me@example.com">
+                </div>
+
+                <div class="recipient-row">
+                    <span class="field-label">Subject</span>
                     <input type="text" name="subject" placeholder="Hello {{name}}" required>
-                </label>
-                <label>HTML template
-                    <textarea name="template" rows="12" placeholder="<p>Hi {{name}},</p><p>We loved what {{company}} is building.</p>" required></textarea>
-                </label>
-                <label>Delay between emails (milliseconds)
-                    <input type="number" name="delayMs" min="0" step="500" value="1500">
-                </label>
-                <button type="submit">Send emails</button>
+                </div>
+
+                <div class="compose-body">
+                    <div class="placeholder-toolbar">
+                        <span>Fields</span>
+                        <div id="placeholderChips" class="chips">
+                            <button type="button" class="chip muted">Upload a sheet first</button>
+                        </div>
+                    </div>
+
+                    <textarea name="template" rows="14" placeholder="Hi {{name}},
+
+We loved what {{company}} is building.
+
+I wanted to share a quick note with you.
+
+Best regards,
+Chaitu" required></textarea>
+
+                    <div class="compose-footer">
+                        <label class="attachment-button">
+                            <input type="file" name="attachments" multiple>
+                            <span>Add attachments</span>
+                        </label>
+                        <div id="attachmentList" class="attachment-list"></div>
+                    </div>
+                </div>
+
+                <div class="composer-actions">
+                    <label class="delay-field">
+                        <span>Delay</span>
+                        <input type="number" name="delayMs" min="0" step="500" value="1500">
+                    </label>
+                    <button type="submit" class="primary-button send-button">Send</button>
+                </div>
+
                 <p id="formStatus" class="status"></p>
             </form>
-        </div>
+        </section>
 
-        <aside class="panel stats">
-            <h2>Dashboard</h2>
-            <div class="stat-row"><span>Sent</span><strong id="sentCount">0</strong></div>
-            <div class="stat-row"><span>Failed</span><strong id="failedCount">0</strong></div>
-            <h3>Recent Campaigns</h3>
-            <div id="campaigns" class="list"></div>
-            <h3>Recent Failures</h3>
-            <div id="failures" class="list"></div>
+        <aside class="sidebar">
+            <section class="sidebar-panel">
+                <h2>Dashboard</h2>
+                <div class="stat-row"><span>Sent</span><strong id="sentCount">0</strong></div>
+                <div class="stat-row"><span>Failed</span><strong id="failedCount">0</strong></div>
+            </section>
+
+            <section class="sidebar-panel">
+                <h3>Recent Campaigns</h3>
+                <div id="campaigns" class="list"></div>
+            </section>
+
+            <section class="sidebar-panel">
+                <h3>Recent Failures</h3>
+                <div id="failures" class="list"></div>
+            </section>
         </aside>
     </section>
 </main>

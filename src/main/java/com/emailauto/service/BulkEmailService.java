@@ -46,9 +46,16 @@ public class BulkEmailService {
         long delayMs = request.delayMs() == null ? properties.getMail().getDefaultDelayMs() : Math.max(0, request.delayMs());
         for (Contact contact : contacts) {
             try {
-                String renderedSubject = templateService.render(request.subject(), contact);
-                String renderedBody = templateService.render(request.template(), contact);
-                gmailEmailService.sendEmail(request.user(), contact.email(), renderedSubject, renderedBody);
+                String renderedSubject = templateService.renderSubject(request.subject(), contact);
+                String renderedBody = templateService.renderBody(request.template(), contact);
+                gmailEmailService.sendEmail(
+                        request.user(),
+                        contact.email(),
+                        request.cc(),
+                        request.bcc(),
+                        renderedSubject,
+                        renderedBody,
+                        request.attachments());
                 sent++;
                 saveLog(campaign, contact, true, null);
             } catch (IOException | MessagingException | RuntimeException ex) {
