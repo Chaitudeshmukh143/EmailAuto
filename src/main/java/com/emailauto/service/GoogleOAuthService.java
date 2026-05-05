@@ -4,7 +4,9 @@ import com.emailauto.config.AppProperties;
 import com.emailauto.domain.UserAccount;
 import com.emailauto.repository.UserAccountRepository;
 import com.google.api.client.auth.oauth2.BearerToken;
+import com.google.api.client.auth.oauth2.ClientParametersAuthentication;
 import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.googleapis.auth.oauth2.GoogleOAuthConstants;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeRequestUrl;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeTokenRequest;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
@@ -85,14 +87,23 @@ public class GoogleOAuthService {
 
     @Transactional
     public Credential credentialFor(UserAccount user) throws IOException {
+        AppProperties.Google google = properties.getOauth().getGoogle();
         String accessToken = tokenCryptoService.decrypt(user.getEncryptedAccessToken());
         String refreshToken = tokenCryptoService.decrypt(user.getEncryptedRefreshToken());
         if (tokenExpiresSoon(user) && StringUtils.hasText(refreshToken)) {
             accessToken = refreshAccessToken(user, refreshToken);
         }
-        Credential credential = new Credential(BearerToken.authorizationHeaderAccessMethod());
+
+        Credential credential = new Credential.Builder(BearerToken.authorizationHeaderAccessMethod())
+                .setTransport(httpTransport)
+                .setJsonFactory(JSON_FACTORY)
+                .setClientAuthentication(new ClientParametersAuthentication(google.getClientId(), google.getClientSecret()))
+                .setTokenServerEncodedUrl(GoogleOAuthConstants.TOKEN_SERVER_URL)
+                .build();
         credential.setAccessToken(accessToken);
-        credential.setRefreshToken(refreshToken);
+        if (StringUtils.hasText(refreshToken)) {
+            credential.setRefreshToken(refreshToken);
+        }
         if (user.getAccessTokenExpiresAt() != null) {
             credential.setExpirationTimeMilliseconds(user.getAccessTokenExpiresAt().toEpochMilli());
         }
