@@ -35,7 +35,14 @@ public class DashboardController {
 
     private ResponseEntity<DashboardResponse> dashboardFor(UserAccount user) {
         List<DashboardResponse.CampaignSummary> campaigns = campaignRepository.findTop10ByUserOrderByCreatedAtDesc(user).stream()
-                .map(c -> new DashboardResponse.CampaignSummary(c.getId(), c.getSubject(), c.getSentCount(), c.getFailedCount(), c.getCreatedAt()))
+                .map(c -> new DashboardResponse.CampaignSummary(
+                        c.getId(),
+                        c.getSubject(),
+                        c.getStatus().name(),
+                        c.getScheduledAt(),
+                        c.getSentCount(),
+                        c.getFailedCount(),
+                        c.getCreatedAt()))
                 .toList();
         List<DashboardResponse.FailureSummary> failures = sendLogRepository.findTop25ByCampaignUserAndSuccessFalseOrderByCreatedAtDesc(user).stream()
                 .map(l -> new DashboardResponse.FailureSummary(l.getRecipientEmail(), l.getErrorMessage(), l.getCreatedAt()))

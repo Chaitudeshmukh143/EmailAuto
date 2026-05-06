@@ -9,6 +9,7 @@ import com.emailauto.web.dto.BulkEmailResponse;
 import com.emailauto.web.dto.ExcelInspectResponse;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
+import java.time.Instant;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -33,6 +34,7 @@ public class EmailController {
     public ResponseEntity<BulkEmailResponse> sendBulk(@RequestParam MultipartFile file, @RequestParam String subject,
                                                       @RequestParam(required = false) MultipartFile[] attachments,
                                                       @RequestParam String template, @RequestParam(required = false) String cc,
+                                                      @RequestParam(required = false) String scheduledAt,
                                                       @RequestParam(required = false) String bcc, @RequestParam(required = false) Long delayMs,
                                                       HttpSession session) throws IOException {
         Long userId = (Long) session.getAttribute(GoogleOAuthService.SESSION_USER_ID);
@@ -40,7 +42,16 @@ public class EmailController {
         if (user == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        return ResponseEntity.ok(bulkEmailService.send(new BulkEmailRequest(user, file, attachments, subject, template, cc, bcc, delayMs)));
+        return ResponseEntity.ok(bulkEmailService.send(new BulkEmailRequest(
+                user,
+                file,
+                attachments,
+                subject,
+                template,
+                cc,
+                bcc,
+                parseScheduledAt(scheduledAt),
+                delayMs)));
     }
 
     @PostMapping("/api/emails/inspect")
@@ -59,5 +70,12 @@ public class EmailController {
     }
 
     public record ErrorResponse(String message) {
+    }
+
+    private Instant parseScheduledAt(String scheduledAt) {
+        if (scheduledAt == null || scheduledAt.isBlank()) {
+            return null;
+        }
+        return Instant.parse(scheduledAt);
     }
 }

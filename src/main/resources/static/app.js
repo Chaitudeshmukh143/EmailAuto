@@ -7,6 +7,7 @@ const fileInput = emailForm?.querySelector('input[name="file"]');
 const attachmentsInput = emailForm?.querySelector('input[name="attachments"]');
 const templateInput = emailForm?.querySelector('textarea[name="template"]');
 const subjectInput = emailForm?.querySelector('input[name="subject"]');
+const scheduleInput = emailForm?.querySelector('input[name="scheduledAtLocal"]');
 const placeholderChips = document.getElementById("placeholderChips");
 const sheetSummary = document.getElementById("sheetSummary");
 const attachmentList = document.getElementById("attachmentList");
@@ -87,16 +88,23 @@ emailForm?.addEventListener("submit", async (event) => {
     formStatus.textContent = "Sending emails. Keep this tab open until the campaign completes.";
 
     try {
+        const formData = new FormData(emailForm);
+        const scheduledValue = scheduleInput?.value;
+        if (scheduledValue) {
+            formData.append("scheduledAt", new Date(scheduledValue).toISOString());
+        }
         const response = await fetch("/api/emails/bulk", {
             method: "POST",
             headers: { [csrf.headerName]: csrf.token },
-            body: new FormData(emailForm)
+            body: formData
         });
         const payload = await response.json().catch(() => ({}));
         if (!response.ok) {
             throw new Error(payload.message || "Campaign failed");
         }
-        formStatus.textContent = `Done. Sent ${payload.sent}, failed ${payload.failed}.`;
+        formStatus.textContent = scheduledValue
+            ? "Scheduled successfully. The server will send this campaign at the selected time."
+            : `Done. Sent ${payload.sent}, failed ${payload.failed}.`;
         emailForm.reset();
         emailForm.delayMs.value = "1500";
         resetSheetHints();
@@ -123,7 +131,7 @@ function renderSheetHints(metadata) {
 
 function resetSheetHints() {
     placeholderChips.innerHTML = '<button type="button" class="chip muted">Upload a sheet first</button>';
-    sheetSummary.textContent = "Upload a recipient sheet to unlock field suggestions.";
+    sheetSummary.textContent = "Upload a recipient sheet with at least an email column to unlock field suggestions.";
 }
 
 function insertToken(token) {
@@ -135,7 +143,16 @@ function insertToken(token) {
 }
 
 function renderCampaign(campaign) {
-    return `<div class="item"><strong>${escapeHtml(campaign.subject)}</strong><small>${campaign.sentCount} sent, ${campaign.failedCount} failed - ${formatDate(campaign.createdAt)}</small></div>`;
+    const status = (campaign.status || "COMPLETED").toLowerCase();
+    const scheduleText = campaign.scheduledAt ? `Scheduled for ${formatDate(campaign.scheduledAt)}` : `Created ${formatDate(campaign.createdAt)}`;
+    return `<div class="item">
+        <div class="item-head">
+            <strong>${escapeHtml(campaign.subject)}</strong>
+            <span class="status-badge ${escapeHtml(status)}">${escapeHtml(status)}</span>
+        </div>
+        <small>${scheduleText}</small>
+        <small>${campaign.sentCount} sent, ${campaign.failedCount} failed</small>
+    </div>`;
 }
 
 function formatDate(value) {

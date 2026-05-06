@@ -481,14 +481,59 @@ h3 { font-size: 15px; margin-bottom: 0; }
     background: linear-gradient(180deg, #fcfdff 0%, #f8fbff 100%);
 }
 
-.item strong {
-    display: block;
+.item-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    align-items: center;
     margin-bottom: 6px;
 }
 
+.item strong {
+    display: block;
+}
+
 .item small {
+    display: block;
     color: #5f6368;
     line-height: 1.45;
+    margin-top: 4px;
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    min-height: 28px;
+    padding: 0 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: capitalize;
+}
+
+.status-badge.scheduled {
+    background: #fff4d6;
+    color: #9a6700;
+}
+
+.status-badge.processing {
+    background: #e8f0fe;
+    color: #0b57d0;
+}
+
+.status-badge.completed {
+    background: #e9f7ef;
+    color: #18794e;
+}
+
+.status-badge.failed {
+    background: #fdeceb;
+    color: #b3261e;
+}
+
+.status-badge.draft {
+    background: #f4f7fb;
+    color: #64748b;
 }
 
 .status {

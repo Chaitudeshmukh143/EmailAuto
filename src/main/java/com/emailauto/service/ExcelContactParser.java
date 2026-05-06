@@ -21,7 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 public class ExcelContactParser {
     private final DataFormatter formatter = new DataFormatter();
-    private static final List<String> REQUIRED_COLUMNS = List.of("name", "email", "company");
+    private static final String REQUIRED_COLUMN = "email";
 
     public List<Contact> parse(MultipartFile file) throws IOException {
         if (file == null || file.isEmpty()) {
@@ -43,7 +43,7 @@ public class ExcelContactParser {
             Sheet sheet = workbook.getSheetAt(0);
             Row header = sheet.getRow(sheet.getFirstRowNum());
             Map<String, Integer> columns = headerColumns(header);
-            REQUIRED_COLUMNS.forEach(name -> requireColumn(columns, name));
+            requireColumn(columns, REQUIRED_COLUMN);
             List<Contact> contacts = new ArrayList<>();
             for (int rowIndex = sheet.getFirstRowNum() + 1; rowIndex <= sheet.getLastRowNum(); rowIndex++) {
                 Row row = sheet.getRow(rowIndex);
@@ -90,7 +90,7 @@ public class ExcelContactParser {
 
     private Map<String, Integer> headerColumns(Row header) {
         if (header == null) {
-            throw new IllegalArgumentException("The first row must contain name, email, company headers");
+            throw new IllegalArgumentException("The first row must contain at least an email header");
         }
         Map<String, Integer> columns = new LinkedHashMap<>();
         for (Cell cell : header) {

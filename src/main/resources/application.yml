@@ -32,6 +32,7 @@ app:
       redirect-uri: ${GOOGLE_REDIRECT_URI:${app.base-url}/auth/google/callback}
   mail:
     default-delay-ms: ${DEFAULT_EMAIL_DELAY_MS:1500}
+    scheduler-delay-ms: ${MAIL_SCHEDULER_DELAY_MS:30000}
   cloudinary:
     cloud-name: ${CLOUDINARY_CLOUD_NAME:}
     api-key: ${CLOUDINARY_API_KEY:}

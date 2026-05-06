@@ -1,6 +1,7 @@
 package com.emailauto.service;
 
 import com.emailauto.domain.UserAccount;
+import java.time.Instant;
 import org.springframework.web.multipart.MultipartFile;
 
 public record BulkEmailRequest(
@@ -11,6 +12,7 @@ public record BulkEmailRequest(
         String template,
         String cc,
         String bcc,
+        Instant scheduledAt,
         Long delayMs
 ) {
 }
