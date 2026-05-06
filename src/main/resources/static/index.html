@@ -9,11 +9,18 @@
 <body>
 <main class="app-shell">
     <section class="hero">
-        <div>
+        <div class="hero-copy">
+            <span class="hero-kicker">Gmail campaign workspace</span>
             <h1>EmailAuto</h1>
-            <p>Send personalized Gmail campaigns with a familiar compose flow.</p>
+            <p>Send personalized Gmail campaigns with a familiar compose flow, recipient-aware fields, and attachment support.</p>
         </div>
-        <div id="authBox" class="auth-box"></div>
+        <div class="hero-actions">
+            <div class="hero-pill">
+                <span class="hero-pill-dot"></span>
+                <span>Bulk send with Gmail API</span>
+            </div>
+            <div id="authBox" class="auth-box"></div>
+        </div>
     </section>
 
     <section id="loginPanel" class="login-panel">
@@ -22,12 +29,29 @@
             <p>Authorize your Google account once, then upload recipients, write a simple message, add attachments, and send.</p>
             <a class="primary-button" href="/auth/google">Login with Google</a>
         </div>
+        <div class="login-side">
+            <div class="login-feature">
+                <strong>Personalized fields</strong>
+                <span>Use placeholders like <code>{{name}}</code> and <code>{{company}}</code>.</span>
+            </div>
+            <div class="login-feature">
+                <strong>Attachment ready</strong>
+                <span>Add brochures, PDFs, images, or any files for every recipient.</span>
+            </div>
+            <div class="login-feature">
+                <strong>Campaign tracking</strong>
+                <span>See sent counts, failures, and recent campaign history in one place.</span>
+            </div>
+        </div>
     </section>
 
     <section id="dashboardPanel" class="workspace hidden">
         <section class="compose-window">
             <div class="compose-header">
-                <strong>New Message</strong>
+                <div class="compose-header-title">
+                    <strong>New Message</strong>
+                    <span>Plain-text writing with smart placeholders</span>
+                </div>
                 <span id="sheetSummary" class="compose-meta">Upload a recipient sheet to unlock field suggestions.</span>
             </div>
 
@@ -61,7 +85,7 @@
 
                 <div class="compose-body">
                     <div class="placeholder-toolbar">
-                        <span>Fields</span>
+                        <span>Available fields</span>
                         <div id="placeholderChips" class="chips">
                             <button type="button" class="chip muted">Upload a sheet first</button>
                         </div>
@@ -90,7 +114,10 @@ Chaitu" required></textarea>
                         <span>Delay</span>
                         <input type="number" name="delayMs" min="0" step="500" value="1500">
                     </label>
-                    <button type="submit" class="primary-button send-button">Send</button>
+                    <div class="composer-action-group">
+                        <span class="send-note">Messages are sent one by one using your connected Gmail account.</span>
+                        <button type="submit" class="primary-button send-button">Send</button>
+                    </div>
                 </div>
 
                 <p id="formStatus" class="status"></p>
@@ -99,18 +126,35 @@ Chaitu" required></textarea>
 
         <aside class="sidebar">
             <section class="sidebar-panel">
-                <h2>Dashboard</h2>
-                <div class="stat-row"><span>Sent</span><strong id="sentCount">0</strong></div>
-                <div class="stat-row"><span>Failed</span><strong id="failedCount">0</strong></div>
+                <div class="sidebar-panel-head">
+                    <h2>Dashboard</h2>
+                    <span class="panel-tag">Live</span>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <span>Sent</span>
+                        <strong id="sentCount">0</strong>
+                    </div>
+                    <div class="stat-card">
+                        <span>Failed</span>
+                        <strong id="failedCount">0</strong>
+                    </div>
+                </div>
             </section>
 
             <section class="sidebar-panel">
-                <h3>Recent Campaigns</h3>
+                <div class="sidebar-panel-head">
+                    <h3>Recent Campaigns</h3>
+                    <span class="panel-tag subtle">History</span>
+                </div>
                 <div id="campaigns" class="list"></div>
             </section>
 
             <section class="sidebar-panel">
-                <h3>Recent Failures</h3>
+                <div class="sidebar-panel-head">
+                    <h3>Recent Failures</h3>
+                    <span class="panel-tag subtle">Alerts</span>
+                </div>
                 <div id="failures" class="list"></div>
             </section>
         </aside>
