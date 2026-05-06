@@ -10,6 +10,7 @@ const subjectInput = emailForm?.querySelector('input[name="subject"]');
 const placeholderChips = document.getElementById("placeholderChips");
 const sheetSummary = document.getElementById("sheetSummary");
 const attachmentList = document.getElementById("attachmentList");
+const failuresPanel = document.getElementById("failuresPanel");
 let csrf = null;
 
 async function loadCsrf() {
@@ -41,9 +42,13 @@ async function loadDashboard() {
     document.getElementById("campaigns").innerHTML = dashboard.recentCampaigns.length
         ? dashboard.recentCampaigns.map(renderCampaign).join("")
         : '<div class="item"><small>No campaigns yet.</small></div>';
-    document.getElementById("failures").innerHTML = dashboard.recentFailures.length
-        ? dashboard.recentFailures.map(renderFailure).join("")
-        : '<div class="item"><small>No failures yet.</small></div>';
+    if (dashboard.recentFailures.length) {
+        failuresPanel.classList.remove("hidden");
+        document.getElementById("failures").innerHTML = dashboard.recentFailures.map(renderFailure).join("");
+    } else {
+        failuresPanel.classList.add("hidden");
+        document.getElementById("failures").innerHTML = "";
+    }
 }
 
 fileInput?.addEventListener("change", async () => {
