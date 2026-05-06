@@ -10,7 +10,6 @@ const subjectInput = emailForm?.querySelector('input[name="subject"]');
 const placeholderChips = document.getElementById("placeholderChips");
 const sheetSummary = document.getElementById("sheetSummary");
 const attachmentList = document.getElementById("attachmentList");
-const failuresPanel = document.getElementById("failuresPanel");
 let csrf = null;
 
 async function loadCsrf() {
@@ -42,13 +41,6 @@ async function loadDashboard() {
     document.getElementById("campaigns").innerHTML = dashboard.recentCampaigns.length
         ? dashboard.recentCampaigns.map(renderCampaign).join("")
         : '<div class="item"><small>No campaigns yet.</small></div>';
-    if (dashboard.recentFailures.length) {
-        failuresPanel.classList.remove("hidden");
-        document.getElementById("failures").innerHTML = dashboard.recentFailures.map(renderFailure).join("");
-    } else {
-        failuresPanel.classList.add("hidden");
-        document.getElementById("failures").innerHTML = "";
-    }
 }
 
 fileInput?.addEventListener("change", async () => {
@@ -144,10 +136,6 @@ function insertToken(token) {
 
 function renderCampaign(campaign) {
     return `<div class="item"><strong>${escapeHtml(campaign.subject)}</strong><small>${campaign.sentCount} sent, ${campaign.failedCount} failed - ${formatDate(campaign.createdAt)}</small></div>`;
-}
-
-function renderFailure(failure) {
-    return `<div class="item"><strong>${escapeHtml(failure.recipientEmail)}</strong><small>${escapeHtml(failure.errorMessage || "Unknown error")} - ${formatDate(failure.createdAt)}</small></div>`;
 }
 
 function formatDate(value) {
