@@ -14,6 +14,7 @@ const attachmentList = document.getElementById("attachmentList");
 const messageEditor = document.getElementById("messageEditor");
 const fontColorPicker = document.getElementById("fontColorPicker");
 const fontFamilySelect = document.getElementById("fontFamilySelect");
+const sendButton = document.getElementById("sendButton");
 let csrf = null;
 
 function syncTemplateInput() {
@@ -121,10 +122,13 @@ attachmentsInput?.addEventListener("change", () => {
         .join("");
 });
 
-emailForm?.addEventListener("submit", async (event) => {
+async function submitCampaign(event) {
     event.preventDefault();
     const submitButton = emailForm.querySelector("button[type='submit']");
-    submitButton.disabled = true;
+    const activeButton = sendButton || submitButton;
+    if (activeButton) {
+        activeButton.disabled = true;
+    }
     formStatus.classList.remove("error");
     formStatus.textContent = "Sending emails. Keep this tab open until the campaign completes.";
 
@@ -158,8 +162,15 @@ emailForm?.addEventListener("submit", async (event) => {
         formStatus.classList.add("error");
         formStatus.textContent = error.message;
     } finally {
-        submitButton.disabled = false;
+        if (activeButton) {
+            activeButton.disabled = false;
+        }
     }
+}
+
+emailForm?.addEventListener("submit", submitCampaign);
+sendButton?.addEventListener("click", (event) => {
+    submitCampaign(event);
 });
 
 function renderSheetHints(metadata) {
