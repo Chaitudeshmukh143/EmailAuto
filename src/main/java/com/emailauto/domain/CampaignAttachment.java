@@ -1,6 +1,8 @@
 package com.emailauto.domain;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "campaign_attachments")
@@ -18,9 +20,9 @@ public class CampaignAttachment {
 
     private String contentType;
 
-    @Lob
+    @JdbcTypeCode(SqlTypes.VARBINARY)
     @Basic(fetch = FetchType.LAZY)
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "bytea")
     private byte[] fileData;
 
     public Long getId() { return id; }

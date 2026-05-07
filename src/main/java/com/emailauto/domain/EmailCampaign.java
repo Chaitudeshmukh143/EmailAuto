@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "campaigns")
@@ -30,9 +32,9 @@ public class EmailCampaign {
     private CampaignStatus status = CampaignStatus.DRAFT;
     @Column(nullable = false)
     private String sourceFileName;
-    @Lob
+    @JdbcTypeCode(SqlTypes.VARBINARY)
     @Basic(fetch = FetchType.LAZY)
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "bytea")
     private byte[] sourceFileData;
     @Column(nullable = false)
     private int sentCount;
