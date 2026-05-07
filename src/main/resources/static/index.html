@@ -55,7 +55,7 @@
                 <span id="sheetSummary" class="compose-meta">Upload a recipient sheet to unlock field suggestions.</span>
             </div>
 
-            <form id="emailForm" class="compose-form">
+            <form id="emailForm" class="compose-form" method="post" action="/api/emails/bulk" enctype="multipart/form-data">
                 <div class="recipient-row">
                     <span class="field-label">Sheet</span>
                     <input type="file" name="file" accept=".xlsx" required>
