@@ -96,16 +96,36 @@
                         </div>
                     </div>
 
-                    <textarea name="template" rows="14" placeholder="Hi {{name}},
-
-We loved what {{company}} is building.
-
-I wanted to share a quick note with you.
-
-Best regards,
-Chaitu" required></textarea>
+                    <div id="messageEditor" class="message-editor" contenteditable="true">
+                        <p>Hi {{name}},</p>
+                        <p>We loved what {{company}} is building.</p>
+                        <p>I wanted to share a quick note with you.</p>
+                        <p>Best regards,<br>Chaitu</p>
+                    </div>
+                    <textarea name="template" class="hidden-template" aria-hidden="true" tabindex="-1"></textarea>
 
                     <div class="compose-footer">
+                        <div class="format-toolbar" aria-label="Formatting toolbar">
+                            <button type="button" class="format-button" data-command="bold"><strong>B</strong></button>
+                            <button type="button" class="format-button" data-command="italic"><em>I</em></button>
+                            <button type="button" class="format-button" data-command="underline"><u>U</u></button>
+                            <button type="button" class="format-button" data-command="insertUnorderedList">• List</button>
+                            <button type="button" class="format-button" data-action="link">Link</button>
+                            <label class="color-picker">
+                                <span>A</span>
+                                <input type="color" id="fontColorPicker" value="#202124">
+                            </label>
+                            <label class="font-select">
+                                <span>Font</span>
+                                <select id="fontFamilySelect">
+                                    <option value="Arial">Arial</option>
+                                    <option value="Georgia">Georgia</option>
+                                    <option value="Tahoma">Tahoma</option>
+                                    <option value="Trebuchet MS">Trebuchet MS</option>
+                                    <option value="Verdana">Verdana</option>
+                                </select>
+                            </label>
+                        </div>
                         <label class="attachment-button">
                             <input type="file" name="attachments" multiple>
                             <span>Add attachments</span>

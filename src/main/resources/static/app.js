@@ -11,7 +11,35 @@ const scheduleInput = emailForm?.querySelector('input[name="scheduledAtLocal"]')
 const placeholderChips = document.getElementById("placeholderChips");
 const sheetSummary = document.getElementById("sheetSummary");
 const attachmentList = document.getElementById("attachmentList");
+const messageEditor = document.getElementById("messageEditor");
+const fontColorPicker = document.getElementById("fontColorPicker");
+const fontFamilySelect = document.getElementById("fontFamilySelect");
 let csrf = null;
+
+document.querySelectorAll(".format-button").forEach((button) => {
+    button.addEventListener("click", () => {
+        messageEditor.focus();
+        const action = button.dataset.action;
+        if (action === "link") {
+            const url = window.prompt("Enter link URL");
+            if (url) {
+                document.execCommand("createLink", false, url);
+            }
+            return;
+        }
+        document.execCommand(button.dataset.command, false);
+    });
+});
+
+fontColorPicker?.addEventListener("input", () => {
+    messageEditor.focus();
+    document.execCommand("foreColor", false, fontColorPicker.value);
+});
+
+fontFamilySelect?.addEventListener("change", () => {
+    messageEditor.focus();
+    document.execCommand("fontName", false, fontFamilySelect.value);
+});
 
 async function loadCsrf() {
     const response = await fetch("/api/csrf");
@@ -89,6 +117,7 @@ emailForm?.addEventListener("submit", async (event) => {
 
     try {
         const formData = new FormData(emailForm);
+        templateInput.value = messageEditor.innerHTML.trim();
         const scheduledValue = scheduleInput?.value;
         if (scheduledValue) {
             formData.append("scheduledAt", new Date(scheduledValue).toISOString());
@@ -107,6 +136,7 @@ emailForm?.addEventListener("submit", async (event) => {
             : `Done. Sent ${payload.sent}, failed ${payload.failed}.`;
         emailForm.reset();
         emailForm.delayMs.value = "1500";
+        messageEditor.innerHTML = "<p>Hi {{name}},</p><p>We loved what {{company}} is building.</p><p>I wanted to share a quick note with you.</p><p>Best regards,<br>Chaitu</p>";
         resetSheetHints();
         attachmentList.innerHTML = "";
         await loadDashboard();
@@ -135,11 +165,15 @@ function resetSheetHints() {
 }
 
 function insertToken(token) {
-    const target = document.activeElement === subjectInput ? subjectInput : templateInput;
-    const start = target.selectionStart ?? target.value.length;
-    const end = target.selectionEnd ?? target.value.length;
-    target.setRangeText(token, start, end, "end");
-    target.focus();
+    if (document.activeElement === subjectInput) {
+        const start = subjectInput.selectionStart ?? subjectInput.value.length;
+        const end = subjectInput.selectionEnd ?? subjectInput.value.length;
+        subjectInput.setRangeText(token, start, end, "end");
+        subjectInput.focus();
+        return;
+    }
+    messageEditor.focus();
+    document.execCommand("insertText", false, token);
 }
 
 function renderCampaign(campaign) {
