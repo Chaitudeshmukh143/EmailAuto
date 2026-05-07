@@ -16,6 +16,13 @@ const fontColorPicker = document.getElementById("fontColorPicker");
 const fontFamilySelect = document.getElementById("fontFamilySelect");
 let csrf = null;
 
+function syncTemplateInput() {
+    if (!templateInput || !messageEditor) {
+        return;
+    }
+    templateInput.value = messageEditor.innerHTML.trim();
+}
+
 document.querySelectorAll(".format-button").forEach((button) => {
     button.addEventListener("click", () => {
         messageEditor.focus();
@@ -28,18 +35,24 @@ document.querySelectorAll(".format-button").forEach((button) => {
             return;
         }
         document.execCommand(button.dataset.command, false);
+        syncTemplateInput();
     });
 });
 
 fontColorPicker?.addEventListener("input", () => {
     messageEditor.focus();
     document.execCommand("foreColor", false, fontColorPicker.value);
+    syncTemplateInput();
 });
 
 fontFamilySelect?.addEventListener("change", () => {
     messageEditor.focus();
     document.execCommand("fontName", false, fontFamilySelect.value);
+    syncTemplateInput();
 });
+
+messageEditor?.addEventListener("input", syncTemplateInput);
+messageEditor?.addEventListener("blur", syncTemplateInput);
 
 async function loadCsrf() {
     const response = await fetch("/api/csrf");
@@ -116,8 +129,8 @@ emailForm?.addEventListener("submit", async (event) => {
     formStatus.textContent = "Sending emails. Keep this tab open until the campaign completes.";
 
     try {
+        syncTemplateInput();
         const formData = new FormData(emailForm);
-        templateInput.value = messageEditor.innerHTML.trim();
         const scheduledValue = scheduleInput?.value;
         if (scheduledValue) {
             formData.append("scheduledAt", new Date(scheduledValue).toISOString());
@@ -137,6 +150,7 @@ emailForm?.addEventListener("submit", async (event) => {
         emailForm.reset();
         emailForm.delayMs.value = "1500";
         messageEditor.innerHTML = "<p>Hi {{name}},</p><p>We loved what {{company}} is building.</p><p>I wanted to share a quick note with you.</p><p>Best regards,<br>Chaitu</p>";
+        syncTemplateInput();
         resetSheetHints();
         attachmentList.innerHTML = "";
         await loadDashboard();
@@ -174,6 +188,7 @@ function insertToken(token) {
     }
     messageEditor.focus();
     document.execCommand("insertText", false, token);
+    syncTemplateInput();
 }
 
 function renderCampaign(campaign) {
@@ -203,3 +218,4 @@ function escapeHtml(value) {
 }
 
 loadCsrf().then(loadMe);
+syncTemplateInput();
