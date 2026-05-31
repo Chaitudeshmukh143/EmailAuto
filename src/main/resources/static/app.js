@@ -25,6 +25,52 @@ function syncTemplateInput() {
     templateInput.value = messageEditor.innerHTML.trim();
 }
 
+function normalizePlainTextToHtml(text) {
+    const cleaned = String(text ?? "")
+        .replace(/\r\n/g, "\n")
+        .replace(/\u00a0/g, " ")
+        .replace(/[ \t]+\n/g, "\n")
+        .replace(/\n[ \t]+/g, "\n")
+        .replace(/[ \t]{2,}/g, " ")
+        .trim();
+
+    if (!cleaned) {
+        return "<p><br></p>";
+    }
+
+    return cleaned
+        .split(/\n{2,}/)
+        .map((paragraph) => escapeHtml(paragraph.replace(/\n/g, " ")))
+        .map((paragraph) => `<p>${paragraph}</p>`)
+        .join("");
+}
+
+function sanitizePastedHtml(html) {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, "text/html");
+    doc.querySelectorAll("script, style, link, meta").forEach((node) => node.remove());
+
+    doc.body.querySelectorAll("*").forEach((node) => {
+        node.removeAttribute("class");
+        node.removeAttribute("id");
+
+        if (node.tagName === "P" || node.tagName === "DIV") {
+            node.style.margin = "0 0 14px";
+        }
+
+        if (node.tagName === "UL" || node.tagName === "OL") {
+            node.style.margin = "0 0 14px 22px";
+            node.style.padding = "0";
+        }
+
+        if (node.tagName === "LI") {
+            node.style.margin = "0 0 6px";
+        }
+    });
+
+    return doc.body.innerHTML.trim();
+}
+
 function showPageStatus(message, isError = false) {
     if (!pageStatus) {
         return;
@@ -70,8 +116,17 @@ fontFamilySelect?.addEventListener("change", () => {
 
 messageEditor?.addEventListener("input", syncTemplateInput);
 messageEditor?.addEventListener("blur", syncTemplateInput);
-messageEditor?.addEventListener("paste", () => {
-    window.setTimeout(syncTemplateInput, 0);
+messageEditor?.addEventListener("paste", (event) => {
+    event.preventDefault();
+    const html = event.clipboardData?.getData("text/html");
+    const text = event.clipboardData?.getData("text/plain");
+    document.execCommand("styleWithCSS", false, true);
+    if (html) {
+        document.execCommand("insertHTML", false, sanitizePastedHtml(html));
+    } else {
+        document.execCommand("insertHTML", false, normalizePlainTextToHtml(text));
+    }
+    syncTemplateInput();
 });
 
 async function loadCsrf() {
