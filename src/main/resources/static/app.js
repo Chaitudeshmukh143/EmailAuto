@@ -15,6 +15,7 @@ const messageEditor = document.getElementById("messageEditor");
 const fontColorPicker = document.getElementById("fontColorPicker");
 const fontFamilySelect = document.getElementById("fontFamilySelect");
 const sendButton = document.getElementById("sendButton");
+const pageStatus = document.getElementById("pageStatus");
 let csrf = null;
 
 function syncTemplateInput() {
@@ -24,9 +25,21 @@ function syncTemplateInput() {
     templateInput.value = messageEditor.innerHTML.trim();
 }
 
+function showPageStatus(message, isError = false) {
+    if (!pageStatus) {
+        return;
+    }
+    pageStatus.textContent = message;
+    pageStatus.classList.remove("hidden", "error");
+    if (isError) {
+        pageStatus.classList.add("error");
+    }
+}
+
 document.querySelectorAll(".format-button").forEach((button) => {
     button.addEventListener("click", () => {
         messageEditor.focus();
+        document.execCommand("styleWithCSS", false, true);
         const action = button.dataset.action;
         if (action === "link") {
             const url = window.prompt("Enter link URL");
@@ -42,18 +55,24 @@ document.querySelectorAll(".format-button").forEach((button) => {
 
 fontColorPicker?.addEventListener("input", () => {
     messageEditor.focus();
+    document.execCommand("styleWithCSS", false, true);
     document.execCommand("foreColor", false, fontColorPicker.value);
     syncTemplateInput();
 });
 
 fontFamilySelect?.addEventListener("change", () => {
     messageEditor.focus();
+    document.execCommand("styleWithCSS", false, true);
     document.execCommand("fontName", false, fontFamilySelect.value);
+    messageEditor.style.fontFamily = fontFamilySelect.value;
     syncTemplateInput();
 });
 
 messageEditor?.addEventListener("input", syncTemplateInput);
 messageEditor?.addEventListener("blur", syncTemplateInput);
+messageEditor?.addEventListener("paste", () => {
+    window.setTimeout(syncTemplateInput, 0);
+});
 
 async function loadCsrf() {
     const response = await fetch("/api/csrf");
@@ -198,6 +217,7 @@ function insertToken(token) {
         return;
     }
     messageEditor.focus();
+    document.execCommand("styleWithCSS", false, true);
     document.execCommand("insertText", false, token);
     syncTemplateInput();
 }
@@ -229,4 +249,8 @@ function escapeHtml(value) {
 }
 
 loadCsrf().then(loadMe);
+const params = new URLSearchParams(window.location.search);
+if (params.get("authError") === "session_expired") {
+    showPageStatus("Google sign-in expired. Please try login again.", true);
+}
 syncTemplateInput();

@@ -35,7 +35,8 @@ public class AuthController {
             throws IOException, GeneralSecurityException {
         String expectedState = (String) session.getAttribute(SESSION_OAUTH_STATE);
         if (expectedState == null || !expectedState.equals(state)) {
-            response.sendError(400, "Invalid OAuth state");
+            session.removeAttribute(SESSION_OAUTH_STATE);
+            response.sendRedirect("/?authError=session_expired");
             return;
         }
         UserAccount user = googleOAuthService.exchangeCodeAndUpsertUser(code);

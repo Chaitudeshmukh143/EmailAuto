@@ -107,6 +107,19 @@ h3 { font-size: 15px; margin-bottom: 0; }
     font-weight: 700;
 }
 
+.page-status {
+    margin: 0;
+    max-width: 340px;
+    color: #146c2e;
+    font-size: 13px;
+    font-weight: 700;
+    text-align: right;
+}
+
+.page-status.error {
+    color: #b3261e;
+}
+
 .primary-button,
 .chip,
 .attachment-button {
@@ -320,6 +333,8 @@ h3 { font-size: 15px; margin-bottom: 0; }
     padding: 18px;
     line-height: 1.65;
     font-size: 15px;
+    font-family: Arial, Helvetica, sans-serif;
+    white-space: pre-wrap;
     outline: none;
     overflow: auto;
 }
@@ -640,6 +655,12 @@ h3 { font-size: 15px; margin-bottom: 0; }
     .auth-box {
         justify-content: flex-start;
         padding-top: 0;
+    }
+
+    .page-status {
+        text-align: left;
+        max-width: none;
+        margin-top: 8px;
     }
 
     .recipient-row {
