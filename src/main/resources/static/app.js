@@ -50,21 +50,70 @@ function sanitizePastedHtml(html) {
     const doc = parser.parseFromString(html, "text/html");
     doc.querySelectorAll("script, style, link, meta").forEach((node) => node.remove());
 
+    const allowedStyleProperties = new Set([
+        "font-weight",
+        "font-style",
+        "text-decoration",
+        "color",
+        "background-color",
+        "font-family",
+        "font-size"
+    ]);
+
     doc.body.querySelectorAll("*").forEach((node) => {
         node.removeAttribute("class");
         node.removeAttribute("id");
+        node.removeAttribute("align");
+
+        const inlineStyle = node.getAttribute("style");
+        if (inlineStyle) {
+            const keptStyles = inlineStyle
+                .split(";")
+                .map((rule) => rule.trim())
+                .filter(Boolean)
+                .map((rule) => {
+                    const parts = rule.split(":");
+                    if (parts.length < 2) {
+                        return null;
+                    }
+                    const property = parts[0].trim().toLowerCase();
+                    const value = parts.slice(1).join(":").trim();
+                    return allowedStyleProperties.has(property) ? `${property}: ${value}` : null;
+                })
+                .filter(Boolean);
+
+            if (keptStyles.length) {
+                node.setAttribute("style", keptStyles.join("; "));
+            } else {
+                node.removeAttribute("style");
+            }
+        }
 
         if (node.tagName === "P" || node.tagName === "DIV") {
             node.style.margin = "0 0 14px";
+            node.style.textAlign = "left";
         }
 
         if (node.tagName === "UL" || node.tagName === "OL") {
             node.style.margin = "0 0 14px 22px";
             node.style.padding = "0";
+            node.style.textAlign = "left";
         }
 
         if (node.tagName === "LI") {
             node.style.margin = "0 0 6px";
+            node.style.textAlign = "left";
+        }
+
+        if (node.tagName === "TABLE") {
+            node.style.width = "100%";
+            node.style.maxWidth = "100%";
+            node.style.borderCollapse = "collapse";
+        }
+
+        if (node.tagName === "TD" || node.tagName === "TH") {
+            node.style.verticalAlign = "top";
+            node.style.textAlign = "left";
         }
     });
 
