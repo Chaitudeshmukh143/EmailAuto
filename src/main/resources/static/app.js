@@ -17,6 +17,7 @@ const fontFamilySelect = document.getElementById("fontFamilySelect");
 const sendButton = document.getElementById("sendButton");
 const pageStatus = document.getElementById("pageStatus");
 let csrf = null;
+let dashboardRefreshHandle = null;
 
 function syncTemplateInput() {
     if (!templateInput || !messageEditor) {
@@ -190,12 +191,14 @@ async function loadMe() {
         authBox.innerHTML = '<a class="primary-button" href="/auth/google">Login with Google</a>';
         loginPanel.classList.remove("hidden");
         dashboardPanel.classList.add("hidden");
+        stopDashboardRefresh();
         return;
     }
     authBox.innerHTML = `<span>${escapeHtml(me.email)}</span><a href="/auth/logout">Logout</a>`;
     loginPanel.classList.add("hidden");
     dashboardPanel.classList.remove("hidden");
     await loadDashboard();
+    startDashboardRefresh();
 }
 
 async function loadDashboard() {
@@ -207,6 +210,18 @@ async function loadDashboard() {
     document.getElementById("campaigns").innerHTML = dashboard.recentCampaigns.length
         ? dashboard.recentCampaigns.map(renderCampaign).join("")
         : '<div class="item"><small>No campaigns yet.</small></div>';
+}
+
+function startDashboardRefresh() {
+    stopDashboardRefresh();
+    dashboardRefreshHandle = window.setInterval(loadDashboard, 10000);
+}
+
+function stopDashboardRefresh() {
+    if (dashboardRefreshHandle) {
+        window.clearInterval(dashboardRefreshHandle);
+        dashboardRefreshHandle = null;
+    }
 }
 
 fileInput?.addEventListener("change", async () => {
@@ -272,10 +287,10 @@ async function submitCampaign(event) {
             throw new Error(payload.message || "Campaign failed");
         }
         formStatus.textContent = scheduledValue
-            ? "Scheduled successfully. The server will send this campaign at the selected time."
-            : `Done. Sent ${payload.sent}, failed ${payload.failed}.`;
+            ? "Scheduled successfully. The server will send one recipient at a time using your delay setting."
+            : "Campaign queued. The server will now send recipients one by one in the background.";
         emailForm.reset();
-        emailForm.delayMs.value = "1500";
+        emailForm.delayMs.value = "60000";
         messageEditor.innerHTML = "<p>Hi {{name}},</p><p>We loved what {{company}} is building.</p><p>I wanted to share a quick note with you.</p><p>Best regards,<br>Chaitu</p>";
         syncTemplateInput();
         resetSheetHints();

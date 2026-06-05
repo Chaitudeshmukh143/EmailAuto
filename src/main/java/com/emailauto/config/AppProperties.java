@@ -45,7 +45,7 @@ public class AppProperties {
     }
 
     public static class Mail {
-        private long defaultDelayMs = 1500;
+        private long defaultDelayMs = 60000;
         public long getDefaultDelayMs() { return defaultDelayMs; }
         public void setDefaultDelayMs(long defaultDelayMs) { this.defaultDelayMs = defaultDelayMs; }
     }

@@ -49,41 +49,7 @@ public class BulkEmailService {
             throw new IllegalArgumentException("Email template is required");
         }
         EmailCampaign campaign = createCampaign(request);
-        if (request.scheduledAt() != null && request.scheduledAt().isAfter(Instant.now())) {
-            return new BulkEmailResponse(campaign.getId(), 0, 0);
-        }
-
-        List<Contact> contacts = excelContactParser.parse(request.file());
-        int sent = 0;
-        int failed = 0;
-        long delayMs = campaign.getDelayMs();
-        for (Contact contact : contacts) {
-            try {
-                String renderedSubject = templateService.renderSubject(request.subject(), contact);
-                String renderedBody = templateService.renderBody(request.template(), contact);
-                gmailEmailService.sendEmail(
-                        request.user(),
-                        contact.email(),
-                        request.cc(),
-                        request.bcc(),
-                        renderedSubject,
-                        renderedBody,
-                        request.attachments());
-                sent++;
-                saveLog(campaign, contact, true, null);
-            } catch (IOException | MessagingException | RuntimeException ex) {
-                failed++;
-                saveLog(campaign, contact, false, ex.getMessage());
-            }
-            sleep(delayMs);
-        }
-        campaign.setSentCount(sent);
-        campaign.setFailedCount(failed);
-        campaign.setStatus(CampaignStatus.COMPLETED);
-        campaign.setStartedAt(campaign.getStartedAt() == null ? Instant.now() : campaign.getStartedAt());
-        campaign.setCompletedAt(Instant.now());
-        campaignRepository.save(campaign);
-        return new BulkEmailResponse(campaign.getId(), sent, failed);
+        return new BulkEmailResponse(campaign.getId(), campaign.getSentCount(), campaign.getFailedCount());
     }
 
     @Transactional
@@ -95,8 +61,9 @@ public class BulkEmailService {
         campaign.setCc(request.cc());
         campaign.setBcc(request.bcc());
         campaign.setDelayMs(request.delayMs() == null ? properties.getMail().getDefaultDelayMs() : Math.max(0, request.delayMs()));
-        campaign.setScheduledAt(request.scheduledAt());
-        campaign.setStatus(request.scheduledAt() != null && request.scheduledAt().isAfter(Instant.now()) ? CampaignStatus.SCHEDULED : CampaignStatus.DRAFT);
+        Instant scheduledAt = request.scheduledAt() != null ? request.scheduledAt() : Instant.now();
+        campaign.setScheduledAt(scheduledAt);
+        campaign.setStatus(CampaignStatus.SCHEDULED);
         campaign.setSourceFileName(request.file().getOriginalFilename());
         campaign.setSourceFileData(request.file().getBytes());
         EmailCampaign savedCampaign = campaignRepository.save(campaign);
@@ -130,15 +97,4 @@ public class BulkEmailService {
         sendLogRepository.save(log);
     }
 
-    private void sleep(long delayMs) {
-        if (delayMs <= 0) {
-            return;
-        }
-        try {
-            Thread.sleep(delayMs);
-        } catch (InterruptedException ex) {
-            Thread.currentThread().interrupt();
-            throw new IllegalStateException("Bulk send interrupted", ex);
-        }
-    }
 }

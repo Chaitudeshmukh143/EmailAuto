@@ -138,10 +138,10 @@
                 <div class="composer-actions">
                     <label class="delay-field">
                         <span>Delay</span>
-                        <input type="number" name="delayMs" min="0" step="500" value="1500">
+                        <input type="number" name="delayMs" min="0" step="1000" value="60000">
                     </label>
                     <div class="composer-action-group">
-                        <span class="send-note">Leave schedule empty to send now. Set a date and time to queue it on the server.</span>
+                        <span class="send-note">Leave schedule empty to start now. Each recipient will be sent one by one using your delay setting.</span>
                         <button type="button" id="sendButton" class="primary-button send-button">Send</button>
                     </div>
                 </div>

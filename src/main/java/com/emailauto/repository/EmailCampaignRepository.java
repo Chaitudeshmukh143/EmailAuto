@@ -12,6 +12,6 @@ import org.springframework.data.repository.query.Param;
 public interface EmailCampaignRepository extends JpaRepository<EmailCampaign, Long> {
     List<EmailCampaign> findTop10ByUserOrderByCreatedAtDesc(UserAccount user);
 
-    @Query("select c from EmailCampaign c left join fetch c.attachments where c.status = :status and c.scheduledAt <= :scheduledAt order by c.scheduledAt asc")
-    List<EmailCampaign> findDueCampaigns(@Param("status") CampaignStatus status, @Param("scheduledAt") Instant scheduledAt);
+    @Query("select distinct c from EmailCampaign c left join fetch c.attachments where c.status in :statuses and c.scheduledAt <= :scheduledAt order by c.scheduledAt asc")
+    List<EmailCampaign> findDueCampaigns(@Param("statuses") List<CampaignStatus> statuses, @Param("scheduledAt") Instant scheduledAt);
 }
